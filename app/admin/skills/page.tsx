@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useToast } from "@/app/components/Toast";
 import AdminModal from "../components/AdminModal";
+import Pagination from "../components/Pagination";
 
 interface Skill {
   id: string;
@@ -15,14 +16,23 @@ export default function AdminSkillsPage() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [editing, setEditing] = useState<Skill | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [form, setForm] = useState({ name: "", level: 3, icon: "" });
   const { showToast } = useToast();
 
-  useEffect(() => {
-    fetch("/api/admin/skills")
-      .then((r) => r.json())
-      .then(setSkills);
+  const fetchSkills = useCallback(async (p: number) => {
+    const res = await fetch(`/api/admin/skills?page=${p}&limit=10`);
+    const json = await res.json();
+    setSkills(json.data);
+    setTotal(json.total);
+    setTotalPages(json.totalPages);
   }, []);
+
+  useEffect(() => {
+    fetchSkills(page);
+  }, [page, fetchSkills]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,8 +52,7 @@ export default function AdminSkillsPage() {
       return;
     }
 
-    const updated = await fetch("/api/admin/skills").then((r) => r.json());
-    setSkills(updated);
+    await fetchSkills(page);
     setShowForm(false);
     setEditing(null);
     setForm({ name: "", level: 3, icon: "" });
@@ -57,7 +66,8 @@ export default function AdminSkillsPage() {
       showToast("Erro ao deletar skill", "error");
       return;
     }
-    setSkills(skills.filter((s) => s.id !== id));
+    if (skills.length === 1 && page > 1) setPage(page - 1);
+    else await fetchSkills(page);
     showToast("Skill deletada!");
   };
 
@@ -201,6 +211,8 @@ export default function AdminSkillsPage() {
           <p className="text-center py-8" style={{ color: "var(--text-muted)" }}>Nenhuma skill encontrada.</p>
         )}
       </div>
+
+      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
     </div>
   );
 }

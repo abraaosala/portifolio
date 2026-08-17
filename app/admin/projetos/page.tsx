@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useToast } from "@/app/components/Toast";
 import AdminModal from "../components/AdminModal";
 import MultiSelectTags from "../components/MultiSelectTags";
+import Pagination from "../components/Pagination";
 
 interface Skill {
   id: string;
@@ -27,6 +28,9 @@ export default function AdminProjetosPage() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [editing, setEditing] = useState<Project | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -38,10 +42,18 @@ export default function AdminProjetosPage() {
   });
   const { showToast } = useToast();
 
-  useEffect(() => {
-    fetch("/api/admin/projects").then((r) => r.json()).then(setProjects);
-    fetch("/api/admin/skills").then((r) => r.json()).then(setSkills);
+  const fetchProjects = useCallback(async (p: number) => {
+    const res = await fetch(`/api/admin/projects?page=${p}&limit=10`);
+    const json = await res.json();
+    setProjects(json.data);
+    setTotal(json.total);
+    setTotalPages(json.totalPages);
   }, []);
+
+  useEffect(() => {
+    fetchProjects(page);
+    fetch("/api/admin/skills?limit=100").then((r) => r.json()).then((json) => setSkills(json.data || json));
+  }, [page, fetchProjects]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,8 +73,7 @@ export default function AdminProjetosPage() {
       return;
     }
 
-    const updated = await fetch("/api/admin/projects").then((r) => r.json());
-    setProjects(updated);
+    await fetchProjects(page);
     setShowForm(false);
     setEditing(null);
     setForm({ title: "", description: "", tags: "", liveUrl: "", githubUrl: "", featured: false, order: 0 });
@@ -76,7 +87,8 @@ export default function AdminProjetosPage() {
       showToast("Erro ao deletar projeto", "error");
       return;
     }
-    setProjects(projects.filter((p) => p.id !== id));
+    if (projects.length === 1 && page > 1) setPage(page - 1);
+    else await fetchProjects(page);
     showToast("Projeto deletado!");
   };
 
@@ -251,6 +263,8 @@ export default function AdminProjetosPage() {
           <p className="text-center py-8" style={{ color: "var(--text-muted)" }}>Nenhum projeto encontrado.</p>
         )}
       </div>
+
+      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
     </div>
   );
 }
