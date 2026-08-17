@@ -25,15 +25,20 @@ function SectionDivider() {
   );
 }
 
+async function getData() {
+  try {
+    const [projects, skills] = await Promise.all([
+      prisma.project.findMany({ orderBy: { order: "asc" } }),
+      prisma.skill.findMany({ orderBy: { level: "desc" } }),
+    ]);
+    return { projects, skills };
+  } catch {
+    return { projects: [], skills: [] };
+  }
+}
+
 export default async function Home() {
-  const [projects, skills] = await Promise.all([
-    prisma.project.findMany({
-      orderBy: { order: "asc" },
-    }),
-    prisma.skill.findMany({
-      orderBy: { level: "desc" },
-    }),
-  ]);
+  const { projects, skills } = await getData();
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--bg-primary)", color: "var(--text-primary)" }}>
