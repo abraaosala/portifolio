@@ -3,6 +3,13 @@
 import { useEffect, useState } from "react";
 import { useToast } from "@/app/components/Toast";
 import AdminModal from "../components/AdminModal";
+import MultiSelectTags from "../components/MultiSelectTags";
+
+interface Skill {
+  id: string;
+  name: string;
+  level: number;
+}
 
 interface Project {
   id: string;
@@ -17,6 +24,7 @@ interface Project {
 
 export default function AdminProjetosPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [skills, setSkills] = useState<Skill[]>([]);
   const [editing, setEditing] = useState<Project | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -31,9 +39,8 @@ export default function AdminProjetosPage() {
   const { showToast } = useToast();
 
   useEffect(() => {
-    fetch("/api/admin/projects")
-      .then((r) => r.json())
-      .then(setProjects);
+    fetch("/api/admin/projects").then((r) => r.json()).then(setProjects);
+    fetch("/api/admin/skills").then((r) => r.json()).then(setSkills);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -121,13 +128,11 @@ export default function AdminProjetosPage() {
               />
             </div>
             <div>
-              <label htmlFor="proj-tags" className="block text-sm mb-1" style={{ color: "var(--text-secondary)" }}>Tags</label>
-              <input
-                id="proj-tags"
-                value={form.tags}
-                onChange={(e) => setForm({ ...form, tags: e.target.value })}
-                placeholder="React,Next.js,TypeScript"
-                className="input-field"
+              <label className="block text-sm mb-1" style={{ color: "var(--text-secondary)" }}>Tags</label>
+              <MultiSelectTags
+                skills={skills}
+                selected={form.tags}
+                onChange={(value) => setForm({ ...form, tags: value })}
               />
             </div>
           </div>
