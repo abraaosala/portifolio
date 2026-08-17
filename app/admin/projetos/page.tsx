@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useToast } from "@/app/components/Toast";
+import AdminModal from "../components/AdminModal";
 
 interface Project {
-  id: number;
+  id: string;
   title: string;
   description: string;
   tags: string;
@@ -61,7 +62,7 @@ export default function AdminProjetosPage() {
     showToast(editing ? "Projeto atualizado!" : "Projeto criado!");
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja deletar este projeto?")) return;
     const res = await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
     if (!res.ok) {
@@ -89,146 +90,148 @@ export default function AdminProjetosPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-white">Projetos</h1>
+        <h1 className="text-3xl font-bold" style={{ color: "var(--text-primary)" }}>Projetos</h1>
         <button
           onClick={() => {
             setShowForm(true);
             setEditing(null);
             setForm({ title: "", description: "", tags: "", liveUrl: "", githubUrl: "", featured: false, order: 0 });
           }}
-          className="px-4 py-2 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors"
+          className="btn-primary"
         >
           + Novo Projeto
         </button>
       </div>
 
-      {showForm && (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-8">
-          <h2 className="text-xl font-semibold text-white mb-4">
-            {editing ? "Editar Projeto" : "Novo Projeto"}
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="proj-title" className="block text-zinc-400 text-sm mb-1">Titulo</label>
-                <input
-                  id="proj-title"
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="proj-tags" className="block text-zinc-400 text-sm mb-1">Tags</label>
-                <input
-                  id="proj-tags"
-                  value={form.tags}
-                  onChange={(e) => setForm({ ...form, tags: e.target.value })}
-                  placeholder="React,Next.js,TypeScript"
-                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
-            </div>
+      <AdminModal
+        isOpen={showForm}
+        onClose={() => { setShowForm(false); setEditing(null); }}
+        title={editing ? "Editar Projeto" : "Novo Projeto"}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="proj-desc" className="block text-zinc-400 text-sm mb-1">Descricao</label>
-              <textarea
-                id="proj-desc"
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={3}
-                className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none resize-none"
+              <label htmlFor="proj-title" className="block text-sm mb-1" style={{ color: "var(--text-secondary)" }}>Titulo</label>
+              <input
+                id="proj-title"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="input-field"
                 required
               />
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="proj-live" className="block text-zinc-400 text-sm mb-1">Live URL</label>
-                <input
-                  id="proj-live"
-                  value={form.liveUrl}
-                  onChange={(e) => setForm({ ...form, liveUrl: e.target.value })}
-                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label htmlFor="proj-github" className="block text-zinc-400 text-sm mb-1">GitHub URL</label>
-                <input
-                  id="proj-github"
-                  value={form.githubUrl}
-                  onChange={(e) => setForm({ ...form, githubUrl: e.target.value })}
-                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
+            <div>
+              <label htmlFor="proj-tags" className="block text-sm mb-1" style={{ color: "var(--text-secondary)" }}>Tags</label>
+              <input
+                id="proj-tags"
+                value={form.tags}
+                onChange={(e) => setForm({ ...form, tags: e.target.value })}
+                placeholder="React,Next.js,TypeScript"
+                className="input-field"
+              />
             </div>
-            <div className="flex items-center gap-6">
-              <label className="flex items-center gap-2 text-zinc-300">
-                <input
-                  type="checkbox"
-                  checked={form.featured}
-                  onChange={(e) => setForm({ ...form, featured: e.target.checked })}
-                  className="rounded border-zinc-600"
-                />
-                Destaque
-              </label>
-              <div className="flex items-center gap-2">
-                <label htmlFor="proj-order" className="text-zinc-400 text-sm">Ordem:</label>
-                <input
-                  id="proj-order"
-                  type="number"
-                  value={form.order}
-                  onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 0 })}
-                  className="w-20 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
+          </div>
+          <div>
+            <label htmlFor="proj-desc" className="block text-sm mb-1" style={{ color: "var(--text-secondary)" }}>Descricao</label>
+            <textarea
+              id="proj-desc"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              rows={3}
+              className="input-field resize-none"
+              required
+            />
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="proj-live" className="block text-sm mb-1" style={{ color: "var(--text-secondary)" }}>Live URL</label>
+              <input
+                id="proj-live"
+                value={form.liveUrl}
+                onChange={(e) => setForm({ ...form, liveUrl: e.target.value })}
+                className="input-field"
+              />
             </div>
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors"
-              >
-                {editing ? "Salvar" : "Criar"}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setShowForm(false); setEditing(null); }}
-                className="px-4 py-2 bg-zinc-700 text-white rounded-lg font-medium hover:bg-zinc-600 transition-colors"
-              >
-                Cancelar
-              </button>
+            <div>
+              <label htmlFor="proj-github" className="block text-sm mb-1" style={{ color: "var(--text-secondary)" }}>GitHub URL</label>
+              <input
+                id="proj-github"
+                value={form.githubUrl}
+                onChange={(e) => setForm({ ...form, githubUrl: e.target.value })}
+                className="input-field"
+              />
             </div>
-          </form>
-        </div>
-      )}
+          </div>
+          <div className="flex items-center gap-6">
+            <label className="flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+              <input
+                type="checkbox"
+                checked={form.featured}
+                onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+                className="rounded"
+              />
+              Destaque
+            </label>
+            <div className="flex items-center gap-2">
+              <label htmlFor="proj-order" className="text-sm" style={{ color: "var(--text-secondary)" }}>Ordem:</label>
+              <input
+                id="proj-order"
+                type="number"
+                value={form.order}
+                onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 0 })}
+                className="input-field w-20"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="submit" className="btn-primary">
+              {editing ? "Salvar" : "Criar"}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setShowForm(false); setEditing(null); }}
+              className="btn-ghost"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </AdminModal>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[600px]">
             <thead>
-              <tr className="border-b border-zinc-800">
-                <th className="text-left px-6 py-4 text-zinc-400 font-medium">Titulo</th>
-                <th className="text-left px-6 py-4 text-zinc-400 font-medium">Tags</th>
-                <th className="text-left px-6 py-4 text-zinc-400 font-medium">Ordem</th>
-                <th className="text-left px-6 py-4 text-zinc-400 font-medium">Acoes</th>
+              <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                <th className="text-left px-6 py-4 font-medium" style={{ color: "var(--text-secondary)" }}>Titulo</th>
+                <th className="text-left px-6 py-4 font-medium" style={{ color: "var(--text-secondary)" }}>Tags</th>
+                <th className="text-left px-6 py-4 font-medium" style={{ color: "var(--text-secondary)" }}>Ordem</th>
+                <th className="text-left px-6 py-4 font-medium" style={{ color: "var(--text-secondary)" }}>Acoes</th>
               </tr>
             </thead>
             <tbody>
               {projects.map((project) => (
-                <tr key={project.id} className="border-b border-zinc-800 last:border-0">
-                  <td className="px-6 py-4 text-white">{project.title}</td>
-                  <td className="px-6 py-4 text-zinc-400 text-sm">{project.tags}</td>
-                  <td className="px-6 py-4 text-zinc-400">{project.order}</td>
+                <tr key={project.id} className="last:border-0" style={{ borderBottom: "1px solid var(--border)" }}>
+                  <td className="px-6 py-4" style={{ color: "var(--text-primary)" }}>{project.title}</td>
+                  <td className="px-6 py-4 text-sm" style={{ color: "var(--text-muted)" }}>{project.tags}</td>
+                  <td className="px-6 py-4" style={{ color: "var(--text-muted)" }}>{project.order}</td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(project)}
-                        className="text-zinc-400 hover:text-emerald-400 transition-colors text-sm"
+                        className="text-sm transition-colors"
+                        style={{ color: "var(--text-muted)" }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = "var(--accent)"}
+                        onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}
                       >
                         Editar
                       </button>
                       <button
                         onClick={() => handleDelete(project.id)}
-                        className="text-zinc-400 hover:text-red-400 transition-colors text-sm"
+                        className="text-sm transition-colors"
+                        style={{ color: "var(--text-muted)" }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = "#ef4444"}
+                        onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}
                       >
                         Deletar
                       </button>
@@ -240,7 +243,7 @@ export default function AdminProjetosPage() {
           </table>
         </div>
         {projects.length === 0 && (
-          <p className="text-zinc-500 text-center py-8">Nenhum projeto encontrado.</p>
+          <p className="text-center py-8" style={{ color: "var(--text-muted)" }}>Nenhum projeto encontrado.</p>
         )}
       </div>
     </div>
