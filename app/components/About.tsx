@@ -26,7 +26,7 @@ function ProfilePhoto() {
         style={{ borderColor: "var(--border)" }}
       >
         <Image
-          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80"
+          src="/meio.jpg"
           alt="Abraao Xavier"
           fill
           className="object-cover"
@@ -47,7 +47,7 @@ function ProfilePhoto() {
           boxShadow: "var(--shadow-lg)",
         }}
       >
-        Full Stack Developer
+        Desenvolvedor Full Stack
       </div>
     </div>
   );
@@ -58,7 +58,7 @@ export default function About({ skills }: { skills: Skill[] }) {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   const stats = [
-    { value: "3+", label: "Anos de Experiencia" },
+    { value: "4+", label: "Anos de Experiencia" },
     { value: "20+", label: "Projetos Concluidos" },
     { value: "100%", label: "Dedicacao" },
   ];
