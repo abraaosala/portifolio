@@ -4,7 +4,7 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 
 interface Project {
-  id: number;
+  id: string;
   title: string;
   description: string;
   tags: string;

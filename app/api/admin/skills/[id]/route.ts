@@ -10,7 +10,7 @@ export async function GET(
 
   const { id } = await params;
   const skill = await prisma.skill.findUnique({
-    where: { id: parseInt(id) },
+    where: { id },
   });
 
   if (!skill) {
@@ -32,7 +32,7 @@ export async function PUT(
     const { name, level, icon } = body;
 
     const skill = await prisma.skill.update({
-      where: { id: parseInt(id) },
+      where: { id },
       data: {
         name,
         level: parseInt(level),
@@ -59,7 +59,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     await prisma.skill.delete({
-      where: { id: parseInt(id) },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

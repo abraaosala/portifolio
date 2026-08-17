@@ -12,7 +12,7 @@ if (!process.env.JWT_SECRET) {
 const COOKIE_NAME = "admin-token";
 
 export interface SessionPayload {
-  userId: number;
+  userId: string;
   email: string;
 }
 
