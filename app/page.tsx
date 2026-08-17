@@ -6,6 +6,8 @@ import Contact from "./components/Contact";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 
+export const dynamic = "force-dynamic";
+
 function SectionDivider() {
   return (
     <div className="relative h-24 pointer-events-none" style={{ backgroundColor: "var(--bg-primary)" }}>
